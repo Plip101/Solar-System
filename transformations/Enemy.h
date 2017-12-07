@@ -25,9 +25,6 @@ public:
 	Enemy(float speed, vec3 distanceParam, string nameParam, vec3 scaleParam, vec3 rotationParam, vec3 transParam,
 		vec3 colorParam);
 
-	void render();
-	void update();
-
 	float getSpeed();
 	vec3 getDistance();
 	

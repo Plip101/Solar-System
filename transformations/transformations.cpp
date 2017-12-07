@@ -24,7 +24,7 @@ const int windowHeight = 768;
 
 GLuint VBO;
 int NUMVERTS = 3;
-float zaxis = 40.0f;
+float zaxis = 50.0f;
 float yaxis = 10.0f;
 float xaxis = 0.0f;
 static GLuint gModelToWorldTransformLocation;
@@ -38,10 +38,11 @@ Planet Earth(0.40f, 0.40f, 0.0f, "Earth", vec3(0.8f, 0.8f, 0.8f), vec3(0.0f, 1, 
 Planet Neptune(0.60f, 0.60f, 0.0f, "Neptune", vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 1, 0.0f), vec3(40.0f, 0.0f, 1.0f), vec3(0.2f, 0.0f, 0.8f));
 Planet Jupiter(0.50f, 0.50f, 0.0f, "Jupiter", vec3(3.5f, 3.5f, 3.5f), vec3(0.0f, 1, 0.0f), vec3(29.5f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f));
 Planet EarthMoon(0.40f, 2.0f, 0.0f, "Moon", vec3(0.5f, 0.5f, 0.5f), vec3(0.3f, 1, 0.0f), vec3(1.5f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
-Planet SaturnRings(0.60f, 2.0f, 2.5f, "Rings", vec3(4.0f, 0.0f, 4.0f), vec3(1, 0.0f, 0.0f), vec3(40.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
-
-Player Barry(2.0f,"Barry", vec3(0.8f, 0.8f, 0.8f), vec3(0.0f, 1, 0.0f), vec3(5.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
-Enemy Chaser(1.0f,vec3(10.0f,0.0f,10.0f),"Enemy", vec3(2.0f,2.0f,2.0f), vec3(0.0f, 1, 0.0f), vec3(20.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 0.0f));
+Planet SaturnRings(0.60f, 2.0f, 2.5f, "Rings", vec3(5.0f, 0.0f, 5.0f), vec3(1, 0.0f, 0.0f), vec3(40.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
+Planet Stars(0.00f, 0.50f, 00.0f, "Stars", vec3(500.0f, 500.0f, 500.0f), vec3(0.2f, 1, 0.0f), vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
+			//Speed
+Player Barry(2.0f,"Barry", vec3(0.8f, 0.8f, 0.8f), vec3(0.0f, 1, 0.0f), vec3(-10.0f, 0.0f, 5.0f), vec3(1.0f, 1.0f, 1.0f));
+Enemy Chaser(1.0f,vec3(10.0f,0.0f,10.0f),"Enemy", vec3(2.0f,2.0f,2.0f), vec3(0.0f, 1, 0.0f), vec3(20.0f, 0.0f, -10.0f), vec3(0.0f, 0.0f, 0.0f));
 
 
 
@@ -149,6 +150,19 @@ static void renderSceneCallBack()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(aitVertex), 0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(aitVertex), (const GLvoid*)12);
 
+	//Stars
+
+	for (float r = 0.0f; r<500.0f; r+=100.0)
+	{
+		mat4 modelToWorldTransformStars = scale(mat4(1.0f), Stars.getScale()) * rotate(mat4(1.0f), r,(Stars.getRotation()));
+		glUniform3f(gColorLocation, Stars.getColor().x, Stars.getColor().y, Stars.getColor().z);
+		glUniformMatrix4fv(gModelToWorldTransformLocation, 1, GL_FALSE, &modelToWorldTransformStars[0][0]);
+		glDrawArrays(GL_POINTS, 0, NUMVERTS);
+		mat4 modelToWorldTransformStars2 = scale(mat4(1.0f), Stars.getScale()) * rotate(mat4(1.0f), r, (Stars.getRotation()));
+		glUniform3f(gColorLocation, Stars.getColor().x, Stars.getColor().y, Stars.getColor().z);
+		glUniformMatrix4fv(gModelToWorldTransformLocation, 1, GL_FALSE, &modelToWorldTransformStars2[0][0]);
+		glDrawArrays(GL_POINTS, 0, NUMVERTS);	
+	}
 	
 	
 	//Player
@@ -158,13 +172,34 @@ static void renderSceneCallBack()
 	glDrawArrays(GL_LINES, 0, NUMVERTS);
 
 	//Chaser
-	vec3 direction = normalize(Barry.getTrans() - Chaser.getDistance());
-	Chaser.setDistance(Chaser.getDistance() + direction * 0.05f);
-	mat4 modelToWorldTransformEnemy = scale(mat4(1.0f), Chaser.getScale()) * translate(mat4(1.0f), Chaser.getDistance());
-	glUniform3f(gColorLocation, Chaser.getColor().x, Chaser.getColor().y , Chaser.getColor().z);
-	glUniformMatrix4fv(gModelToWorldTransformLocation, 1, GL_FALSE, &modelToWorldTransformEnemy[0][0]);
-	glDrawArrays(GL_LINES, 0, NUMVERTS);
-	
+	bool xx = false;
+	bool zz = false;
+	bool dead = false;
+	if (round(Chaser.getDistance().z) == Sun.getTrans().z )
+	{
+		zz = true;
+	}
+	if (round(Chaser.getDistance().x) == Sun.getTrans().x-4.0f)
+	{
+		xx = true;
+	}
+	if (xx == true && zz == true)
+	{
+		dead = true;
+	}
+	if (dead == false)
+	{
+		vec3 dist = Barry.getTrans();
+		vec3 direction = normalize(dist - Chaser.getDistance());
+		
+		Chaser.setDistance(Chaser.getDistance() + direction * 0.05f);
+		mat4 modelToWorldTransformEnemy = scale(mat4(1.0f), Chaser.getScale()) * translate(mat4(1.0f), Chaser.getDistance());
+		glUniform3f(gColorLocation, (float)(rand() % 2), (float)(rand() % 2), (float)(rand() % 2));
+		glUniformMatrix4fv(gModelToWorldTransformLocation, 1, GL_FALSE, &modelToWorldTransformEnemy[0][0]);
+		glDrawArrays(GL_LINES, 0, NUMVERTS);
+		cout << round(Chaser.getDistance().z) << "    " << round(Chaser.getDistance().x) << endl;
+		//cout << "Chaser x: " << Chaser.getDistance().x << "Sun x: " << Sun.getTrans().x << endl;
+	}
 	//Sun
 	Sun.setRs(0.20f);
 	for (float y = 0.0f, s = 8.0f; y < 1.0f, s>1.0f; y += 0.2f, s -= 1.0f)

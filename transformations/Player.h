@@ -24,9 +24,6 @@ public:
 	Player(float speed, string nameParam, vec3 scaleParam, vec3 rotationParam, vec3 transParam,
 		vec3 colorParam);
 
-	void render();
-	void update();
-
 	float getSpeed();
 
 	void setSpeed(float speedParam);

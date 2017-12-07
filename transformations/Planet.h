@@ -24,8 +24,6 @@ public:
 	Planet(float osParam, float rsParam, float oaParam, string nameParam, vec3 scaleParam, vec3 rotationParam, vec3 transParam,
 		vec3 colorParam);
 
-	void render();
-	void update();
 
 	float getOs();
 	float getRs();
